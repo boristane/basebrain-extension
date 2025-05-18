@@ -104,13 +104,6 @@
 
         <template v-else>
           <!-- Non-authenticated State -->
-          <div class="alert">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="alert-icon">
-              <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-            </svg>
-            <p>You need to sign in to Basebrain to save memories.</p>
-          </div>
-
           <div class="action-buttons">
             <button class="action-button action-button-primary" @click="openLogin">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -119,13 +112,6 @@
                 <line x1="15" y1="12" x2="3" y2="12"></line>
               </svg>
               Sign in to Basebrain
-            </button>
-            
-            <button class="action-button action-button-secondary" @click="checkAuthentication">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 12C21 16.9706 16.9706 21 12 21M21 12C21 7.02944 16.9706 3 12 3M21 12H3M12 21C7.02944 21 3 16.9706 3 12M12 21C14.5013 21 16.5 16.9706 16.5 12C16.5 7.02944 14.5013 3 12 3M12 21C9.49872 21 7.5 16.9706 7.5 12C7.5 7.02944 9.49872 3 12 3M3 12C3 7.02944 7.02944 3 12 3"/>
-              </svg>
-              Re-check Auth
             </button>
           </div>
         </template>
@@ -154,6 +140,7 @@ const showNotesInput = ref(false)
 const notesTextareaRef = ref(null)
 const autoCloseTimer = ref(null)
 const showNoteSaved = ref(false)
+const authCheckInterval = ref(null)
 
 // Watch savedMemoryId changes for debugging
 watch(savedMemoryId, (newVal, oldVal) => {
@@ -177,8 +164,11 @@ const checkDarkMode = () => {
 // Listen for dark mode changes
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', checkDarkMode)
 
-const checkAuthentication = async () => {
-  loading.value = true
+const checkAuthentication = async (isInitialCheck = false) => {
+  if (isInitialCheck) {
+    loading.value = true
+  }
+  
   const auth = await checkAuth()
   isAuthenticated.value = auth.isAuthenticated
   authToken.value = auth.authToken
@@ -187,11 +177,33 @@ const checkAuthentication = async () => {
   // Automatically save page if authenticated
   if (auth.isAuthenticated && !savedMemoryId.value) {
     // Start saving immediately
-    loading.value = false
+    if (isInitialCheck) {
+      loading.value = false
+    }
     await performSave()
   } else {
-    loading.value = false
+    if (isInitialCheck) {
+      loading.value = false
+    }
   }
+}
+
+const startAuthCheckInterval = () => {
+  // Clear existing interval if any
+  if (authCheckInterval.value) {
+    clearInterval(authCheckInterval.value)
+  }
+  
+  // Check auth every 5 seconds if not authenticated
+  authCheckInterval.value = setInterval(() => {
+    if (!isAuthenticated.value) {
+      checkAuthentication(false)
+    } else {
+      // Stop checking once authenticated
+      clearInterval(authCheckInterval.value)
+      authCheckInterval.value = null
+    }
+  }, 5000)
 }
 
 const openLogin = () => {
@@ -378,7 +390,8 @@ const handleClickOutside = (event) => {
 
 onMounted(async () => {
   checkDarkMode()
-  checkAuthentication()
+  checkAuthentication(true)
+  startAuthCheckInterval()
   
   // Add click outside listener after a small delay to prevent immediate trigger
   await nextTick()
@@ -390,6 +403,9 @@ onMounted(async () => {
 // Cleanup on unmount
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
+  if (authCheckInterval.value) {
+    clearInterval(authCheckInterval.value)
+  }
 })
 </script>
 
