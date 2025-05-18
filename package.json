@@ -1,0 +1,29 @@
+{
+  "name": "basebrain-extension",
+  "version": "1.0.0",
+  "description": "Basebrain browser extension for saving memories",
+  "type": "module",
+  "scripts": {
+    "dev": "wxt -m development",
+    "build": "wxt build",
+    "package": "wxt zip"
+  },
+  "keywords": [
+    "basebrain",
+    "memory",
+    "browser-extension"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/chrome": "^0.0.270",
+    "@vitejs/plugin-vue": "^5.2.4",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.4.39",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.5.3",
+    "vue": "^3.4.31",
+    "wxt": "^0.20.6"
+  },
+  "dependencies": {}
+}
