@@ -1,7 +1,7 @@
 {
   "name": "basebrain-extension",
   "version": "1.0.0",
-  "description": "Basebrain browser extension for saving memories",
+  "description": "Basebrain - Your memory with AI",
   "type": "module",
   "scripts": {
     "dev": "wxt -m development",
