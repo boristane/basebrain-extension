@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import SidebarApp from './SidebarApp.vue'
 import '../../styles/content.css'
+import { browser } from 'wxt/browser'
 
 export default defineContentScript({
   matches: ['<all_urls>'],
@@ -25,10 +26,15 @@ export default defineContentScript({
       }
     }
 
+    // Listen for sidebar close events from the Vue component
+    window.addEventListener('basebrain-close-sidebar', () => {
+      removeSidebar()
+    })
+
     // Listen for messages from the background script
-    browser.runtime.onMessage.addListener((message) => {
+    browser.runtime.onMessage.addListener((message: any) => {
       if (message.action === 'toggleSidebar') {
-        if (sidebarContainer) {
+        if (sidebarContainer && document.getElementById('basebrain-sidebar-container')) {
           removeSidebar()
         } else {
           createSidebar()

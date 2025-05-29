@@ -347,10 +347,8 @@ const onAddNoteClick = () => {
 }
 
 const closeSidebar = () => {
-  const container = document.getElementById('basebrain-sidebar-container')
-  if (container) {
-    container.remove()
-  }
+  // Dispatch event to notify content script
+  window.dispatchEvent(new CustomEvent('basebrain-close-sidebar'))
 }
 
 const startAutoCloseTimer = () => {
