@@ -6,7 +6,7 @@ export default defineConfig({
   manifest: {
     name: 'Basebrain - Your memory with AI',
     description: 'Save websites and web content to your personal knowledge base',
-    permissions: ['cookies', 'storage', 'tabs', 'activeTab', 'scripting'],
+    permissions: ['cookies', 'activeTab',],
     host_permissions: ['https://basebrain.ai/*', '<all_urls>', 'http://localhost/*'],
     icons: {
       "16": "icons/icon-16.png",
